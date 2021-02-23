@@ -1,8 +1,27 @@
-const { mAddTrans, mDeleteTrans, mDetailTrans } = require('../models/pending')
+const { mAddTrans, mDeleteTrans, mDetailTrans, mAllPending } = require('../models/pending')
 const { mUpdateSaldo, modelDetail } = require('../models/users')
 const { failed, success, notFound } = require('../helpers/response');
 
 module.exports ={
+  allTrans: (req, res) => {
+    try {
+      const limit = req.query.limit ? req.query.limit : '5'
+      const sort = req.query.sort ? req.query.sort : 'desc'
+      const range = req.query.range ? toUpper(req.query.range) : 'YEAR'
+      const page = req.query.page ? req.query.page : '1'
+      const offset = page === 1 ? 0 : (page - 1) * limit
+      const user = req.query.user ? req.query.user : '%'
+      mAllPending(user, offset, limit, sort, range)
+        .then((dataPending) => {
+          success(res, dataPending, {}, 'Display Pending Data Success')
+        })
+        .catch((err) => {
+          failed(res, '', err.message, 'Query Problem')
+        })
+    } catch (err){
+      failed(res, '', err.message, 'Internal Server Error')
+    }
+  },
   addTrans: (req, res) => {
       try {
           // Ambil data dari body
@@ -17,7 +36,6 @@ module.exports ={
               type: data.type,
               status: 'Pending'
             }
-            // Jika ada penambahan saldo
                 // Ambil detailnya User
                 modelDetail(data.user_id)
                   .then(async (resDetailUser) => {
