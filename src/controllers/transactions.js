@@ -1,4 +1,4 @@
-const { mAddTrans, mAllTrans, mTotalTrans, mDetailTrans} = require('../models/transactions')
+const { mAddTrans, mAllTrans, mTotalTrans, mDetailTrans, mTotalIn, mTotalOut} = require('../models/transactions')
 const { mDetailPending, mDeletePending } = require('../models/pending')
 const { mUpdateSaldo, modelDetail } = require('../models/users')
 const { failed, success, notFound } = require('../helpers/response');
@@ -13,6 +13,8 @@ module.exports ={
       const offset = page === 1 ? 0 : (page - 1) * limit
       const user = req.query.id ? Number(req.query.id) : '%'
       const totalTrans = await mTotalTrans(user)
+      const totalIncome = await mTotalIn(user)
+      const totalExpense = await mTotalOut(user)
       mAllTrans(user, offset, limit, sort, range)
         .then((dataTrans) => {
           const paginationTrans = {
@@ -24,6 +26,10 @@ module.exports ={
               range,
               // Banyaknya Invoices yang terdaftar
               totalData: totalTrans[0].qty,
+              // Banyaknya Pemasukan
+              totalIncome: totalIncome[0].totalIncome,
+              // Banyaknya Pengeluaran
+              totalExpense: totalExpense[0].totalExpense,
               // TotalPages
               totalPages: Math.ceil(totalTrans[0].qty/limit)
           }
