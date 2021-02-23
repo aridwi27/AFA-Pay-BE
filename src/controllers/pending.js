@@ -1,6 +1,7 @@
-const { mAddPending, mDeletePending, mDetailPending, mAllPending, mTotalPending } = require('../models/pending')
+const { mAddPending, mDeletePending, mDetailPending, mAllPending, mTotalPending, genId } = require('../models/pending')
 const { mUpdateSaldo, modelDetail } = require('../models/users')
 const { failed, success, notFound } = require('../helpers/response');
+const { mAddTrans } = require('../models/transactions');
 
 module.exports ={
   allPending: async (req, res) => {
@@ -22,58 +23,57 @@ module.exports ={
               // range data yang sedang ditampilkan
               range,
               // Banyaknya Invoices yang terdaftar
-              totalData: totalPending[0].qty
+              totalData: totalPending[0].qty,
+              // TotalPages
+              totalPages: Math.ceil(totalPending[0].qty/limit)
           }
           if(dataPending.length >= 1) {
+            // res, data, pagination, message
             success(res, dataPending, paginationPending, 'Display Pending Data Success')
           } else {
-            success(res, 'No Pending Transaction', {}, 'Display Pending Data Success')
+            success(res, {}, {}, 'No Data Found')
           }
         })
         .catch((err) => {
-          failed(res, '', err.message, 'Query Problem')
+          failed(res, 'Query Probblem', err.message)
         })
     } catch (err){
-      failed(res, '', err.message, 'Internal Server Error')
+      failed(res, 'Internal Server Error', err.message)
     }
   },
-  addPending: (req, res) => {
+  addPending: async (req, res) => {
       try {
           // Ambil data dari body
           const data = req.body
           // Inisialisasi Checker
           if(data.user_id && data.target_id && data.amount && data.info && data.type){
-            const finalData = {
-              user_id: data.user_id,
-              target_id: data.target_id,
-              amount: data.amount,
-              info: data.info,
-              type: data.type
-            }
                 // Ambil detailnya User
                 modelDetail(data.user_id)
                   .then(async (resDetailUser) => {
                     let dataUpdateUser = {}
                     if (data.type === 'in') {
+                      const finalData = {
+                        trans_id: await genId(10),
+                        user_id: data.user_id,
+                        target_id: data.target_id,
+                        amount: data.amount,
+                        info: data.info,
+                        type: data.type,
+                        status: 'Success',
+                      }
                       dataUpdateUser = {
                         id: data.user_id,
                         // Kalau misalkan mau langsung Tambah saldo
                         credit: Number(resDetailUser[0].credit) + Number(data.amount)
                         // credit: Number(resDetailUser[0].credit)
                       }
-                    } else {
-                      dataUpdateUser = {
-                        id: data.user_id,
-                        credit: Number(resDetailUser[0].credit) - Number(data.amount)
-                      }
-                    }
-                    await mUpdateSaldo(dataUpdateUser)
+                      await mUpdateSaldo(dataUpdateUser)
                       .then(async () => {
                         // Tambahkan ke tabel transaksi
-                        await mAddPending(finalData)
+                        await mAddTrans(finalData)
                           .then(() => {
                             // Kalau Transaksi Sukses
-                            success(res, 'Transaction Success', {}, '')
+                            success(res, {}, {}, 'Transaction Success')
                           })
                           // Kalau Gagal Transaksi menambahkan
                           .catch((err) => {
@@ -82,15 +82,46 @@ module.exports ={
                       })
                       .catch((err) => {
                         // Kalau ada tipe data yang salah
-                        failed(res, 'Transaction Failed, Wrong Data Type', err.message)
+                        failed(res, 'Wrong Data Type', err.message)
                       })
+                    } else {
+                      const finalData = {
+                        trans_id: await genId(10),
+                        user_id: data.user_id,
+                        target_id: data.target_id,
+                        amount: data.amount,
+                        info: data.info,
+                        type: data.type
+                      }
+                      dataUpdateUser = {
+                        id: data.user_id,
+                        credit: Number(resDetailUser[0].credit) - Number(data.amount)
+                      }
+                      await mUpdateSaldo(dataUpdateUser)
+                      .then(async () => {
+                        // Tambahkan ke tabel transaksi
+                        await mAddPending(finalData)
+                          .then(() => {
+                            // Kalau Transaksi Sukses
+                            success(res, {}, {}, 'Transaction Success')
+                          })
+                          // Kalau Gagal Transaksi menambahkan
+                          .catch((err) => {
+                            failed(res, 'Transaction Failed', err.message)
+                          })
+                      })
+                      .catch((err) => {
+                        // Kalau ada tipe data yang salah
+                        failed(res, 'Wrong Data Type', err.message)
+                      })
+                    }
                   })
                   .catch((err) => {
-                    failed(res, 'Transaction Failed, Something happened', err.message)
+                    failed(res, 'Internal Server Error', err.message)
                   })
           } else {
               // Kalau ada data yang kosong
-              failed(res, 'Transaction Failed, Empty Field Found', err.message)
+              failed(res, 'Empty Field Found', err.message)
           }
       } catch (err) {
           // Kalau ada salah lainnya
@@ -105,19 +136,19 @@ module.exports ={
         .then((response) => {
           if (response.length != 0) {
             // Kalau ada datanya
-            success(res, response, {}, 'Display Success')
+            success(res, response, {}, 'Display Transaction Success')
           } else {
             // kalau tidak ada datanya
-            failed(res, 'Data Not Found, Wrong ID Detected', {})
+            failed(res, 'Data not Found', {})
           }
         })
         .catch((err) => {
           // Kalau salah parameternya
-          failed(res, 'Wrong Parameter Type', {})
+          failed(res, 'Wrong Parameter Type', err.message)
         })
     } catch (err) {
       // Kalau ada salah lainnya
-      failed(res, 'Internal Server Error', {})
+      failed(res, 'Internal Server Error', err.message)
     }
   },
   deletePending: (req, res) => {
@@ -147,7 +178,7 @@ module.exports ={
                       await mDeletePending(id)
                         .then(() => {
                           // Kalau Transaksi Sukses
-                          success(res, 'Delete Transaction Success', {}, '')
+                          success(res, {}, {}, 'Delete Transaction Success')
                         })
                         // Kalau Gagal Transaksi menambahkan
                         .catch((err) => {

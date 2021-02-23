@@ -48,12 +48,13 @@ module.exports ={
                         await mUpdateSaldo(dataUpdateUser)
                           .then(async () => {
                             const finalData = {
-                              trans_id: resDetailPending[0].id,
+                              trans_id: resDetailPending[0].trans_id,
                               user_id: resDetailPending[0].user_id,
                               target_id: resDetailPending[0].target_id,
                               amount: resDetailPending[0].amount,
                               type: resDetailPending[0].type,
                               info: resDetailPending[0].info,
+                              created_at: resDetailPending[0].created_at,
                               status: 'Success',
                             }
                             // Tambahkan ke tabel transaksi

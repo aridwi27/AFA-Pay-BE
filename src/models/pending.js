@@ -3,7 +3,7 @@ const connection = require('../config/mysql');
 module.exports = {
   mAllPending: (user, offset, limit, sort, range) => {
     return new Promise((resolve, reject) => {
-      let sql = `SELECT pendings.id as id, user.first_name as userFirstName, user.lastName as userLastName, target.first_name as targetFirstName, target.lastName AS targetLastName, target.image as targetImage, pendings.amount as amount, pendings.type as type, pendings.info as info, pendings.created_at as created_at FROM pendings LEFT JOIN users as user ON pendings.user_id = user.id LEFT JOIN users as target ON pendings.target_id = target.id WHERE (pendings.user_id LIKE '%${user}%') OR (pendings.target_id LIKE '%${user}%') AND`
+      let sql = `SELECT pendings.id as id,  pendings.trans_id as trans_id, user.first_name as userFirstName,user.lastName as userLastName, target.first_name as targetFirstName, target.lastName AS targetLastName, target.image as targetImage, pendings.amount as amount, pendings.type as type, pendings.info as info, pendings.created_at as created_at FROM pendings LEFT JOIN users as user ON pendings.user_id = user.id LEFT JOIN users as target ON pendings.target_id = target.id WHERE (pendings.user_id LIKE '%${user}%') OR (pendings.target_id LIKE '%${user}%') AND`
       if (range == 'DAY' || range == 'day') {
         sql = sql + ` CAST(pendings.created_at AS DATE) = CURDATE() ORDER BY pendings.created_at ${sort} LIMIT ${offset}, ${limit}`
       } else {
@@ -66,5 +66,14 @@ module.exports = {
             }
         })
     })
+  },
+  genId (length) {
+    var result           = '';
+    var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    var charactersLength = characters.length;
+    for ( var i = 0; i < length; i++ ) {
+       result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return `TRANS-${result}`;
   }
 }
