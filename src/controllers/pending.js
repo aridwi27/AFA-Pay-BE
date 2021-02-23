@@ -51,69 +51,73 @@ module.exports ={
                 modelDetail(data.user_id)
                   .then(async (resDetailUser) => {
                     let dataUpdateUser = {}
-                    if (data.type === 'in') {
-                      const finalData = {
-                        trans_id: await genId(10),
-                        user_id: data.user_id,
-                        target_id: data.target_id,
-                        amount: data.amount,
-                        info: data.info,
-                        type: data.type,
-                        status: 'Success',
+                    if (Number(resDetailUser[0].credit) >= Number(data.amount)) {
+                      if (data.type === 'in') {
+                        const finalData = {
+                          trans_id: await genId(10),
+                          user_id: data.user_id,
+                          target_id: data.target_id,
+                          amount: data.amount,
+                          info: data.info,
+                          type: data.type,
+                          status: 'Success',
+                        }
+                        dataUpdateUser = {
+                          id: data.user_id,
+                          // Kalau misalkan mau langsung Tambah saldo
+                          credit: Number(resDetailUser[0].credit) + Number(data.amount)
+                          // credit: Number(resDetailUser[0].credit)
+                        }
+                        await mUpdateSaldo(dataUpdateUser)
+                        .then(async () => {
+                          // Tambahkan ke tabel transaksi
+                          await mAddTrans(finalData)
+                            .then(() => {
+                              // Kalau Transaksi Sukses
+                              success(res, {}, {}, 'Transaction Success')
+                            })
+                            // Kalau Gagal Transaksi menambahkan
+                            .catch((err) => {
+                              failed(res, 'Transaction Failed', err.message)
+                            })
+                        })
+                        .catch((err) => {
+                          // Kalau ada tipe data yang salah
+                          failed(res, 'Wrong Data Type', err.message)
+                        })
+                      } else {
+                        const finalData = {
+                          trans_id: await genId(10),
+                          user_id: data.user_id,
+                          target_id: data.target_id,
+                          amount: data.amount,
+                          info: data.info,
+                          type: data.type
+                        }
+                        dataUpdateUser = {
+                          id: data.user_id,
+                          credit: Number(resDetailUser[0].credit) - Number(data.amount)
+                        }
+                        await mUpdateSaldo(dataUpdateUser)
+                        .then(async () => {
+                          // Tambahkan ke tabel transaksi
+                          await mAddPending(finalData)
+                            .then(() => {
+                              // Kalau Transaksi Sukses
+                              success(res, {}, {}, 'Transaction Success')
+                            })
+                            // Kalau Gagal Transaksi menambahkan
+                            .catch((err) => {
+                              failed(res, 'Transaction Failed', err.message)
+                            })
+                        })
+                        .catch((err) => {
+                          // Kalau ada tipe data yang salah
+                          failed(res, 'Wrong Data Type', err.message)
+                        })
                       }
-                      dataUpdateUser = {
-                        id: data.user_id,
-                        // Kalau misalkan mau langsung Tambah saldo
-                        credit: Number(resDetailUser[0].credit) + Number(data.amount)
-                        // credit: Number(resDetailUser[0].credit)
-                      }
-                      await mUpdateSaldo(dataUpdateUser)
-                      .then(async () => {
-                        // Tambahkan ke tabel transaksi
-                        await mAddTrans(finalData)
-                          .then(() => {
-                            // Kalau Transaksi Sukses
-                            success(res, {}, {}, 'Transaction Success')
-                          })
-                          // Kalau Gagal Transaksi menambahkan
-                          .catch((err) => {
-                            failed(res, 'Transaction Failed', err.message)
-                          })
-                      })
-                      .catch((err) => {
-                        // Kalau ada tipe data yang salah
-                        failed(res, 'Wrong Data Type', err.message)
-                      })
                     } else {
-                      const finalData = {
-                        trans_id: await genId(10),
-                        user_id: data.user_id,
-                        target_id: data.target_id,
-                        amount: data.amount,
-                        info: data.info,
-                        type: data.type
-                      }
-                      dataUpdateUser = {
-                        id: data.user_id,
-                        credit: Number(resDetailUser[0].credit) - Number(data.amount)
-                      }
-                      await mUpdateSaldo(dataUpdateUser)
-                      .then(async () => {
-                        // Tambahkan ke tabel transaksi
-                        await mAddPending(finalData)
-                          .then(() => {
-                            // Kalau Transaksi Sukses
-                            success(res, {}, {}, 'Transaction Success')
-                          })
-                          // Kalau Gagal Transaksi menambahkan
-                          .catch((err) => {
-                            failed(res, 'Transaction Failed', err.message)
-                          })
-                      })
-                      .catch((err) => {
-                        // Kalau ada tipe data yang salah
-                        failed(res, 'Wrong Data Type', err.message)
-                      })
+                      failed(res, 'Credit Minus', 'Your Balance is too low')
                     }
                   })
                   .catch((err) => {

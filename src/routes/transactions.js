@@ -1,14 +1,14 @@
 const express = require('express');
 
 const { authentication } = require('../helpers/middleware/auth')
-const { confirmTrans } = require('../controllers/transactions')
+const { confirmTrans, allTrans, detailTrans } = require('../controllers/transactions')
 
 const Router = express.Router()
 
 Router
   .post('/api/transaction/:id', confirmTrans)
+  .get('/api/transaction', allTrans) //all transactions
+  .get('/api/transaction/:id', detailTrans) //specific transactions
   // .patch('/api/transaction/:id') 
-  // .get('/api/transaction/:id') //specific transactions
-  // .get('/api/transaction') //all transactions
 
 module.exports = Router
