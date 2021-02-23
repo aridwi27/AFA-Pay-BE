@@ -6,7 +6,8 @@ const moment = require('moment');
 const { modelReg,
     modelCheck,
     modelUpdate,
-    modelDetail,} = require('../models/users');
+    modelDetail,
+    modelSearchUser} = require('../models/users');
 
 const { failed,
     success,
@@ -40,18 +41,19 @@ module.exports = {
     //user register
     userReg: (req, res) => {
         const body = req.body;
+        const genUsername = body.username.split(' ').join('');
         const data = {
             email: body.email,
             password: body.password,
-            first_name: body.first_name,
-            lastName: body.last_name,
+            username: genUsername,
+            first_name: genUsername,
             image: 'default_photo.png'
         }
         modelCheck(body.email).then(async (response) => {
             if (response.length >= 1) {
                 failed(res, "Email has been registered", {})
             } else {
-                if (!body.email || !body.password || !body.first_name || !body.last_name) {
+                if (!body.email || !body.password || !body.username) {
                     failed(res, 'Empty Field, All Field Required', {})
                 } else {
                     const salt = await bcrypt.genSalt();
@@ -135,4 +137,23 @@ module.exports = {
             failed(res, 'Internal server error', error.message)
         }
     },
+    searchUser: (req, res) => {
+        modelSearchUser(req.query.name).then((response)=>{
+            if (response.length === 0){
+                notFound(res, 'User not found', {})
+            }
+            const data = response.map((el)=>{
+                return {
+                    username : el.username,
+                    first_name : el.first_name,
+                    last_name : el.last_name,
+                    image : el.image,
+                    email: el.email
+                }
+            })
+            success(res, data, {}, 'Search user success')
+        }).catch((err)=>{
+            failed(res, 'Internal server error', err.message)
+        })
+    }
 }

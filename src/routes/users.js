@@ -3,7 +3,8 @@ const express = require('express');
 const { userReg,
         login,
         updateUser,
-        getDetailUser } = require('../controllers/users');
+        getDetailUser,
+        searchUser } = require('../controllers/users');
 
 const { authentication } = require('../helpers/middleware/auth')
 
@@ -16,5 +17,6 @@ Router
   .post('/api/login', login)  //all access
   .patch('/api/user/:id', authentication, singleUpload, updateUser) 
   .get('/api/user/:id', authentication, getDetailUser)
+  .get('/api/user', authentication ,searchUser)
 
 module.exports = Router
