@@ -75,7 +75,6 @@ module.exports = {
             const currDate = moment().format('YYYY-MM-DDThh:mm:ss.ms');
             const id = req.params.id
             const detail = await modelDetail(id)
-            // const data = {...body, image: req.file.filename};
             if (req.file) {
                 const data = { ...body, image: req.file.filename, updated_at: currDate };
                 if (detail[0].image === 'default_photo.png') {
@@ -119,7 +118,7 @@ module.exports = {
             failed(res, 'Error server', error.message)
         }
     },
-    // //get Detail User
+    // //get Detail Users
     getDetailUser: (req, res) => {
         try {
             const id = req.params.id
