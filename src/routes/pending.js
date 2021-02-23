@@ -8,7 +8,7 @@ const Router = express.Router()
 Router
   .post('/api/pending', addTrans)
   .get('/api/pending/:id', detailTrans) 
-  .delete('/api/pending/:id', detailTrans) 
+  .delete('/api/pending/:id', deleteTrans) 
   // .get('/api/pending/:id')
 
 module.exports = Router
