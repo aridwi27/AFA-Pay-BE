@@ -6,9 +6,9 @@ const { addTrans, detailTrans, deleteTrans, allTrans } = require('../controllers
 const Router = express.Router()
 
 Router
-  .post('/api/pending', addTrans)
-  .get('/api/pending/:id', detailTrans) 
-  .delete('/api/pending/:id', deleteTrans) 
-  .get('/api/pending/', allTrans)
+  .post('/api/pending', authentication, addTrans)
+  .get('/api/pending/:id',authentication, detailTrans) 
+  .delete('/api/pending/:id',authentication, deleteTrans) 
+  .get('/api/pending/',authentication, allTrans)
 
 module.exports = Router
