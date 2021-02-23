@@ -49,4 +49,16 @@ module.exports = {
             })
         })
     },
+    // Update Saldo User
+    mUpdateSaldo: (data) => {
+        return new Promise((resolve, reject) => {
+            connection.query(`UPDATE users SET credit = ${data.credit} WHERE id='${data.id}'`, (err, result) => {
+                if (err) {
+                    reject(new Error(err))
+                } else {
+                    resolve(result)
+                }
+            })
+        })
+    }
 }
