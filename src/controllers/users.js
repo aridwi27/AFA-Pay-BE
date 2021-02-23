@@ -7,11 +7,13 @@ const { modelReg,
     modelCheck,
     modelUpdate,
     modelDetail,
-    modelSearchUser} = require('../models/users');
+    modelSearchUser,
+    modelSearchAllUser} = require('../models/users');
 
 const { failed,
     success,
     notFound } = require('../helpers/response');
+const { query } = require('../config/mysql');
 
 module.exports = {
     //user login
@@ -59,7 +61,18 @@ module.exports = {
                     const salt = await bcrypt.genSalt();
                     const password = await bcrypt.hash(body.password, salt);
                     const user = {...data, password };
-                    modelReg(user).then(() => {
+                    modelReg(user).then(async() => {
+                        //register >>> halaman pin
+                        // const getUser = await modelCheck(user.email)
+                        // const userData = {
+                        //     id : getUser[0].id,
+                        //     email: getUser[0].email,
+                        //     username: getUser[0].username 
+                        // }
+                        // const token = jwt.sign(userData, process.env.JWT_SECRET);
+                        // success(res, {...userData, token}, {}, 'Register Success')
+
+                        // register >>> halaman login
                         success(res, user, {}, 'Register Success')
                     }).catch((err) => {
                         failed(res, "Server Error", err.message)
@@ -137,8 +150,14 @@ module.exports = {
             failed(res, 'Internal server error', error.message)
         }
     },
-    searchUser: (req, res) => {
-        modelSearchUser(req.query.name).then((response)=>{
+    searchUser: async(req, res) => {
+        const limit = req.query.limit? req.query.limit: '5'
+        const page = req.query.page? req.query.page: '1'
+        const name = req.query.name? req.query.name: '%'
+        const sort = req.query.sort? req.query.sort: 'ASC'
+        const offset = page === 1 ? 0 : (page - 1) * limit
+        const allData = await modelSearchAllUser(name);
+        modelSearchUser(name, limit, offset, sort).then((response)=>{
             if (response.length === 0){
                 notFound(res, 'User not found', {})
             }
@@ -151,7 +170,13 @@ module.exports = {
                     email: el.email
                 }
             })
-            success(res, data, {}, 'Search user success')
+            const pagination = {
+                page: page,
+                totalData: allData.length,
+                totalPage: Math.ceil(allData.length/limit),
+                limit: limit,
+            }
+            success(res, data, pagination, 'Search user success')
         }).catch((err)=>{
             failed(res, 'Internal server error', err.message)
         })
