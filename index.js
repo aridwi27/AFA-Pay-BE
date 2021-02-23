@@ -2,7 +2,7 @@ const express = require('express')
 const cors = require('cors')
 const bodyParser = require('body-parser')
 const http = require('http')
-// const userRoute = require('./src/route/users')
+const userRoute = require('./src/routes/users')
 
 const app = express()
 
@@ -12,7 +12,7 @@ app.use(cors({
 }))
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
-// app.use(userRoute)
+app.use(userRoute)
 // open route for public image
 app.use('/images', express.static('./public/images'))
 

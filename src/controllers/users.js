@@ -24,7 +24,7 @@ module.exports = {
                         email: response[0].email
                     };
                     const token = jwt.sign(userData, process.env.JWT_SECRET);
-                    success(res, {token, id: response[0].id, username: response[0].username }, {}, 'login succesful')
+                    success(res, {token, id: response[0].id, email: response[0].email }, {}, 'login succesful')
                 } else {
                     failed(res, "Wrong Password", {})
                 }
@@ -33,6 +33,7 @@ module.exports = {
             }
         }).catch((err) => {
             failed(res, "Server Error", {})
+            console.log(err)
         })
     },
     //user register
