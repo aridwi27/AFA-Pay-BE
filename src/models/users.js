@@ -60,5 +60,17 @@ module.exports = {
                 }
             })
         })
+    },
+    //searchUser
+    modelSearchUser: (data) => {
+        return new Promise((resolve, reject)=>{
+            connection.query(`SELECT * FROM users WHERE username like '%${data}%'`, (err, result)=>{
+                if (err) {
+                    reject(new Error(err))
+                } else {
+                    resolve(result)
+                }
+            })
+        })
     }
 }
