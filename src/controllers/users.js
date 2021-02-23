@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
+const moment = require('moment');
 
 const { modelReg,
     modelCheck,
@@ -68,70 +69,71 @@ module.exports = {
         })
     },
     //update User
-    // updateUser: async (req, res) => {
-    //     try {
-    //         const body = req.body
-    //         const id = req.params.id
-    //         const detail = await modelDetail(id)
-    //         // const data = {...body, image: req.file.filename};
-    //         if (req.file) {
-    //             const data = { ...body, image: req.file.filename };
-    //             if (detail[0].image === 'default_photo.png') {
-    //                 modelUpdate(data, id)
-    //                     .then((response) => {
-    //                         success(res, response, {}, 'Update User success')
-    //                     }).catch((err) => {
-    //                         failed(res, 'Update User Failed!', err.message)
-    //                     })
-    //             } else {
-    //                 const path = `./public/images/${detail[0].image}`
-    //                 fs.unlinkSync(path)
-    //                 modelUpdate(data, id)
-    //                     .then((response) => {
-    //                         success(res, response, {}, 'Update User success')
-    //                     }).catch(() => {
-    //                         failed(res, 'Update user Usr Failed', err.message)
-    //                     })
-    //             }
-    //         } else {
-    //             const data = { ...body, image: 'default_photo.png' };
-    //             if (detail[0].image === 'default_photo.png') {
-    //                 modelUpdate(data, id)
-    //                     .then((response) => {
-    //                         success(res, response, {}, 'Update User success')
-    //                     }).catch((err) => {
-    //                         failed(res, 'All textfield is required!', err.message)
-    //                     })
-    //             } else {
-    //                 const path = `./public/images/${detail[0].image}`
-    //                 fs.unlinkSync(path)
-    //                 modelUpdate(data, id)
-    //                     .then((response) => {
-    //                         success(res, response, {}, 'Update User success')
-    //                     }).catch(() => {
-    //                         failed(res, 'Can\'t connect to database', err.message)
-    //                     })
-    //             }
-    //         }
-    //     } catch (error) {
-    //         failed(res, 'Error server', error.message)
-    //     }
-    // },
+    updateUser: async (req, res) => {
+        try {
+            const body = req.body
+            const currDate = moment().format('YYYY-MM-DDThh:mm:ss.ms');
+            const id = req.params.id
+            const detail = await modelDetail(id)
+            // const data = {...body, image: req.file.filename};
+            if (req.file) {
+                const data = { ...body, image: req.file.filename, updated_at: currDate };
+                if (detail[0].image === 'default_photo.png') {
+                    modelUpdate(data, id)
+                        .then((response) => {
+                            success(res, response, {}, 'Update User success')
+                        }).catch((err) => {
+                            failed(res, 'Update User Failed!', err.message)
+                        })
+                } else {
+                    const path = `./public/images/${detail[0].image}`
+                    fs.unlinkSync(path)
+                    modelUpdate(data, id)
+                        .then((response) => {
+                            success(res, response, {}, 'Update User success')
+                        }).catch(() => {
+                            failed(res, 'Update user Usr Failed', err.message)
+                        })
+                }
+            } else {
+                const data = { ...body, image: 'default_photo.png', updated_at: currDate };
+                if (detail[0].image === 'default_photo.png') {
+                    modelUpdate(data, id)
+                        .then((response) => {
+                            success(res, response, {}, 'Update User success')
+                        }).catch((err) => {
+                            failed(res, 'All textfield is required!', err.message)
+                        })
+                } else {
+                    const path = `./public/images/${detail[0].image}`
+                    fs.unlinkSync(path)
+                    modelUpdate(data, id)
+                        .then((response) => {
+                            success(res, response, {}, 'Update User success')
+                        }).catch(() => {
+                            failed(res, 'Can\'t connect to database', err.message)
+                        })
+                }
+            }
+        } catch (error) {
+            failed(res, 'Error server', error.message)
+        }
+    },
     // //get Detail User
-    // getDetailUser: (req, res) => {
-    //     try {
-    //         const id = req.params.id
-    //         modelDetail(id).then((response) => {
-    //             if (response.length > 0) {
-    //                 success(res, response, {}, 'Get detail user success')
-    //             } else {
-    //                 notFound(res, "Data unavailable", response)
-    //             }
-    //         }).catch((err) => {
-    //             failed(res, 'Internal server error', err.message)
-    //         })
-    //     } catch (error) {
-    //         failed(res, 'Internal server error', error.message)
-    //     }
-    // },
+    getDetailUser: (req, res) => {
+        try {
+            const id = req.params.id
+            modelDetail(id).then((response) => {
+                if (response.length > 0) {
+                    success(res, response, {}, 'Get detail user success')
+                } else {
+                    notFound(res, "Data unavailable", response)
+                }
+            }).catch((err) => {
+                failed(res, 'Internal server error', err.message)
+            })
+        } catch (error) {
+            failed(res, 'Internal server error', error.message)
+        }
+    },
 }
