@@ -33,8 +33,7 @@ module.exports ={
               target_id: data.target_id,
               amount: data.amount,
               info: data.info,
-              type: data.type,
-              status: 'Pending'
+              type: data.type
             }
                 // Ambil detailnya User
                 modelDetail(data.user_id)
@@ -133,11 +132,11 @@ module.exports ={
                       await mDeleteTrans(id)
                         .then(() => {
                           // Kalau Transaksi Sukses
-                          success(res, 'Transaction Success', {}, '')
+                          success(res, 'Delete Transaction Success', {}, '')
                         })
                         // Kalau Gagal Transaksi menambahkan
                         .catch((err) => {
-                          failed(res, 'Transaction Failed', err.message)
+                          failed(res, 'Delete transaction Failed', err.message)
                         })
                     })
                     .catch((err) => {
