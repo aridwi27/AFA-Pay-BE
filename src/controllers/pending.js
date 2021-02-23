@@ -1,19 +1,34 @@
-const { mAddTrans, mDeleteTrans, mDetailTrans, mAllPending } = require('../models/pending')
+const { mAddPending, mDeletePending, mDetailPending, mAllPending, mTotalPending } = require('../models/pending')
 const { mUpdateSaldo, modelDetail } = require('../models/users')
 const { failed, success, notFound } = require('../helpers/response');
 
 module.exports ={
-  allTrans: (req, res) => {
+  allPending: async (req, res) => {
     try {
       const limit = req.query.limit ? req.query.limit : '5'
       const sort = req.query.sort ? req.query.sort : 'desc'
       const range = req.query.range ? toUpper(req.query.range) : 'YEAR'
       const page = req.query.page ? req.query.page : '1'
       const offset = page === 1 ? 0 : (page - 1) * limit
-      const user = req.query.user ? req.query.user : '%'
+      const user = req.query.id ? Number(req.query.id) : '%'
+      const totalPending = await mTotalPending(user)
       mAllPending(user, offset, limit, sort, range)
         .then((dataPending) => {
-          success(res, dataPending, {}, 'Display Pending Data Success')
+          const paginationPending = {
+              // Halaman yang sedang diakses
+              page,
+              // Batasan Banyaknya hasil per halaman
+              limit,
+              // range data yang sedang ditampilkan
+              range,
+              // Banyaknya Invoices yang terdaftar
+              totalData: totalPending[0].qty
+          }
+          if(dataPending.length >= 1) {
+            success(res, dataPending, paginationPending, 'Display Pending Data Success')
+          } else {
+            success(res, 'No Pending Transaction', {}, 'Display Pending Data Success')
+          }
         })
         .catch((err) => {
           failed(res, '', err.message, 'Query Problem')
@@ -22,7 +37,7 @@ module.exports ={
       failed(res, '', err.message, 'Internal Server Error')
     }
   },
-  addTrans: (req, res) => {
+  addPending: (req, res) => {
       try {
           // Ambil data dari body
           const data = req.body
@@ -55,7 +70,7 @@ module.exports ={
                     await mUpdateSaldo(dataUpdateUser)
                       .then(async () => {
                         // Tambahkan ke tabel transaksi
-                        await mAddTrans(finalData)
+                        await mAddPending(finalData)
                           .then(() => {
                             // Kalau Transaksi Sukses
                             success(res, 'Transaction Success', {}, '')
@@ -82,11 +97,11 @@ module.exports ={
           failed(res, 'Internal Server Error', err.message)
     }
   },
-  detailTrans: (req, res) => {
+  detailPending: (req, res) => {
     try {
       // Ambil data dari parameter
       const id = req.params.id
-      mDetailTrans(id)
+      mDetailPending(id)
         .then((response) => {
           if (response.length != 0) {
             // Kalau ada datanya
@@ -105,31 +120,31 @@ module.exports ={
       failed(res, 'Internal Server Error', {})
     }
   },
-  deleteTrans: (req, res) => {
+  deletePending: (req, res) => {
     try {
         const id = req.params.id
-        mDetailTrans (id)
-          .then(async (resDetailTrans) => {
-            await modelDetail(resDetailTrans[0].user_id)
+        mDetailPending (id)
+          .then(async (resDetailPending) => {
+            await modelDetail(resDetailPending[0].user_id)
             .then(async (resDetailUser) => {
                   let dataUpdateUser = {}
-                  if (resDetailTrans[0].type === 'in') {
+                  if (resDetailPending[0].type === 'in') {
                     dataUpdateUser = {
-                      id: resDetailTrans[0].user_id,
+                      id: resDetailPending[0].user_id,
                       // Kalau misalkan mau langsung Tambah saldo
-                      credit: Number(resDetailUser[0].credit) - Number(resDetailTrans[0].amount)
+                      credit: Number(resDetailUser[0].credit) - Number(resDetailPending[0].amount)
                       // credit: Number(resDetailUser[0].credit)
                     }
                   } else {
                     dataUpdateUser = {
-                      id: resDetailTrans[0].user_id,
-                      credit: Number(resDetailUser[0].credit) + Number(resDetailTrans[0].amount)
+                      id: resDetailPending[0].user_id,
+                      credit: Number(resDetailUser[0].credit) + Number(resDetailPending[0].amount)
                     }
                   }
                   await mUpdateSaldo(dataUpdateUser)
                     .then(async () => {
                       // Tambahkan ke tabel transaksi
-                      await mDeleteTrans(id)
+                      await mDeletePending(id)
                         .then(() => {
                           // Kalau Transaksi Sukses
                           success(res, 'Delete Transaction Success', {}, '')
