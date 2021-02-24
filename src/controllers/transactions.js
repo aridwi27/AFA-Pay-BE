@@ -32,10 +32,11 @@ module.exports = {
       const page = req.query.page ? req.query.page : '1'
       const offset = page === 1 ? 0 : (page - 1) * limit
       const user = req.query.id ? Number(req.query.id) : '%'
+      const status = req.query.status ? req.query.status : '%'
       const totalTrans = await mTotalTrans(user)
       const totalIncome = await mTotalIn(user)
       const totalExpense = await mTotalOut(user)
-      mAllTrans(user, offset, limit, sort, range)
+      mAllTrans(user, offset, limit, sort, range, status)
         .then((dataTrans) => {
           const paginationTrans = {
             // Halaman yang sedang diakses

@@ -1,9 +1,9 @@
 const connection = require('../config/mysql');
 
 module.exports = {
-  mAllTrans: (user, offset, limit, sort, range) => {
+  mAllTrans: (user, offset, limit, sort, range, status) => {
     return new Promise((resolve, reject) => {
-      let sql = `SELECT transactions.id as id, transactions.trans_id as trans_id, transactions.user_id as user_id, user.first_name as userFirstName, user.last_name as userLastName, transactions.target_id as target_id, target.first_name as targetFirstName, target.last_name AS targetLastName, target.image as targetImage, transactions.amount as amount, transactions.type as type, transactions.info as info, transactions.created_at as created_at, transactions.updated_at as updated_at FROM transactions LEFT JOIN users as user ON transactions.user_id = user.id LEFT JOIN users as target ON transactions.target_id = target.id WHERE (transactions.user_id LIKE '%${user}%') OR (transactions.target_id LIKE '%${user}%') AND`
+      let sql = `SELECT transactions.id as id, transactions.trans_id as trans_id, transactions.user_id as user_id, user.first_name as userFirstName, user.last_name as userLastName, transactions.target_id as target_id, target.first_name as targetFirstName, target.last_name AS targetLastName, target.image as targetImage, transactions.amount as amount, transactions.type as type, transactions.info as info, transactions.created_at as created_at, transactions.updated_at as updated_at FROM transactions LEFT JOIN users as user ON transactions.user_id = user.id LEFT JOIN users as target ON transactions.target_id = target.id WHERE transactions.status LIKE '%${status}%' AND (transactions.user_id LIKE '%${user}%') OR (transactions.target_id LIKE '%${user}%') AND `
       if (range == 'DAY' || range == 'day') {
         sql = sql + ` CAST(transactions.created_at AS DATE) = CURDATE() ORDER BY transactions.created_at ${sort} LIMIT ${offset}, ${limit}`
       } else {
@@ -69,7 +69,7 @@ module.exports = {
   },
   mTotalOut: (user) => {
     return new Promise((resolve, reject) => {
-      const sql = `SELECT SUM(amount) as totalExpense FROM transactions WHERE (type='out' AND user_id = ${user})`
+      const sql = `SELECT SUM(amount) as totalExpense FROM transactions WHERE (type='out' AND user_id LIKE '%${user}%')`
         connection.query(sql, (err, result) => {
             if (err) {
                 reject(new Error(err));
@@ -81,7 +81,7 @@ module.exports = {
   },
   mTotalIn: (user) => {
     return new Promise((resolve, reject) => {
-      const sql = `SELECT SUM(amount) as totalIncome FROM transactions WHERE (type='in' AND target_id = ${user}) OR (type='out' AND target_id = ${user})`
+      const sql = `SELECT SUM(amount) as totalIncome FROM transactions WHERE (type='in' AND target_id LIKE '%${user}%') OR (type='out' AND target_id LIKE '%${user}%')`
         connection.query(sql, (err, result) => {
             if (err) {
                 reject(new Error(err));
