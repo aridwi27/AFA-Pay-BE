@@ -62,9 +62,9 @@ module.exports = {
         })
     },
     //searchUser
-    modelSearchUser: (data) => {
+    modelSearchUser: (name, limit, offset, sort) => {
         return new Promise((resolve, reject)=>{
-            connection.query(`SELECT * FROM users WHERE username like '%${data}%'`, (err, result)=>{
+            connection.query(`SELECT * FROM users WHERE username like '%${name}%' ORDER BY username ${sort} LIMIT ${offset}, ${limit}`, (err, result)=>{
                 if (err) {
                     reject(new Error(err))
                 } else {
@@ -72,5 +72,16 @@ module.exports = {
                 }
             })
         })
-    }
+    },
+    modelSearchAllUser: (name) => {
+        return new Promise((resolve, reject)=>{
+            connection.query(`SELECT * FROM users WHERE username like '%${name}%'`, (err, result)=>{
+                if (err) {
+                    reject(new Error(err))
+                } else {
+                    resolve(result)
+                }
+            })
+        })
+    },
 }
