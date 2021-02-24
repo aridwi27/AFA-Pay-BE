@@ -6,9 +6,9 @@ const { confTrans, allTrans, detailTrans, addTrans } = require('../controllers/t
 const Router = express.Router()
 
 Router
-  .post('/api/transaction/', addTrans)
-  .patch('/api/transaction/:id', confTrans)
-  .get('/api/transaction', authentication, allTrans) //all transactions
+  .post('/api/transaction/', authentication, addTrans)
+  .patch('/api/transaction/:id', authentication, confTrans)
+  .get('/api/transaction', allTrans) //all transactions
   .get('/api/transaction/:id', authentication, detailTrans) //specific transactions
   // .patch('/api/transaction/:id') 
 
