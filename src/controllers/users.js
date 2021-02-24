@@ -8,7 +8,8 @@ const { modelReg,
     modelUpdate,
     modelDetail,
     modelSearchUser,
-    modelSearchAllUser} = require('../models/users');
+    modelSearchAllUser,
+    mdDeletePhoto} = require('../models/users');
 
 const { failed,
     success,
@@ -110,24 +111,13 @@ module.exports = {
                         })
                 }
             } else {
-                const data = { ...body, image: 'default_photo.png', updated_at: currDate };
-                if (detail[0].image === 'default_photo.png') {
-                    modelUpdate(data, id)
-                        .then((response) => {
-                            success(res, response, {}, 'Update User success')
-                        }).catch((err) => {
-                            failed(res, 'All textfield is required!', err.message)
-                        })
-                } else {
-                    const path = `./public/images/${detail[0].image}`
-                    fs.unlinkSync(path)
-                    modelUpdate(data, id)
-                        .then((response) => {
-                            success(res, response, {}, 'Update User success')
-                        }).catch(() => {
-                            failed(res, 'Can\'t connect to database', err.message)
-                        })
-                }
+                const data = { ...body, updated_at: currDate };
+                modelUpdate(data, id)
+                    .then((response) => {
+                        success(res, response, {}, 'Update User success')
+                    }).catch((err) => {
+                        failed(res, 'Server error', err.message)
+                    })
             }
         } catch (error) {
             failed(res, 'Error server', error.message)
@@ -180,5 +170,24 @@ module.exports = {
         }).catch((err)=>{
             failed(res, 'Internal server error', err.message)
         })
+    },
+    deletePhoto: (req, res) => {
+        try {
+            modelDetail(req.params.id).then((result) => {
+                if (result[0].image != 'default_photo.png') {
+                    const path = `./public/images/${result[0].image}`
+                    fs.unlinkSync(path)
+                }
+                mdDeletePhoto(req.params.id).then(() => {
+                    success(res, 'Image deleted success')
+                }).catch(err => {
+                    failed(res, 'Internal server error', err)
+                })
+            }).catch((err) => {
+                failed(res, 'Internal server error', err)
+            })
+        } catch (error) {
+            failed(res, 'Internal server error', error)
+        }
     }
 }

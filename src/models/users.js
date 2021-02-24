@@ -84,4 +84,15 @@ module.exports = {
             })
         })
     },
+    mdDeletePhoto: (id) => {
+        return new Promise((resolve, reject) => {
+            connection.query(`UPDATE users SET image = 'default_photo.png' WHERE id = '${id}'`, (err, result) => {
+                if (err) {
+                    reject(new Error(err))
+                } else {
+                    resolve(result)
+                }
+            })
+        })
+    }
 }
