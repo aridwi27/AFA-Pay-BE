@@ -33,8 +33,20 @@ module.exports = {
   },
   mDetailTrans: (id) => {
     return new Promise((resolve, reject) => {
-      const sql = `SELECT transactions.id as id, transactions.trans_id as trans_id, transactions.user_id as user_id,  user.first_name as userFirstName, user.last_name as userLastName, transactions.target_id as target_id, target.first_name as targetFirstName, target.last_name AS targetLastName, target.image as targetImage, transactions.amount as amount, transactions.type as type, transactions.info as info, transactions.created_at as created_at, transactions.updated_at as updated_at FROM transactions LEFT JOIN users as user ON transactions.user_id = user.id LEFT JOIN users as target ON transactions.target_id = target.id WHERE transactions.id = ${id}`
+      const sql = `SELECT transactions.id as id, transactions.status as status, transactions.trans_id as trans_id, transactions.user_id as user_id,  user.first_name as userFirstName, user.last_name as userLastName, transactions.target_id as target_id, target.first_name as targetFirstName, target.last_name AS targetLastName, target.image as targetImage, transactions.amount as amount, transactions.type as type, transactions.info as info, transactions.created_at as created_at, transactions.updated_at as updated_at FROM transactions LEFT JOIN users as user ON transactions.user_id = user.id LEFT JOIN users as target ON transactions.target_id = target.id WHERE transactions.id = ${id}`
         connection.query(sql, (err, result) => {
+            if (err) {
+                reject(new Error(err));
+            } else {
+                resolve(result);
+            }
+        })
+    })
+  },
+  mPatchTrans: (id, data) => {
+    return new Promise((resolve, reject) => {
+      const sql = `UPDATE transactions SET ? WHERE id=?`
+        connection.query(sql,[data, id], (err, result) => {
             if (err) {
                 reject(new Error(err));
             } else {
@@ -78,5 +90,14 @@ module.exports = {
             }
         })
     })
+  },
+  genId (length) {
+    var result           = '';
+    var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    var charactersLength = characters.length;
+    for ( var i = 0; i < length; i++ ) {
+       result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return `TRANS-${result}`;
   }
 }
