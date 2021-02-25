@@ -217,9 +217,10 @@ module.exports = {
                 .then(async () => {
                   // Tambahkan ke tabel transaksi
                   await mAddTrans(finalData)
-                    .then(() => {
+                    .then((note) => {
                       const dataAkhir = {
-                        id: finalData.trans_id,
+                        id: note.insertId,
+                        trans_id: finalData.trans_id,
                         type: finalData.type,
                         info: finalData.info,
                         amount: Number(data.amount),
@@ -260,10 +261,11 @@ module.exports = {
                     // Tambahkan ke tabel transaksi
                     console.log(finalData)
                     await mAddTrans(finalData)
-                      .then(() => {
+                      .then((note) => {
                         // Kalau Transaksi Sukses
                         const data = {
-                          id: finalData.trans_id,
+                          id: note.insertId,
+                          trans_id: finalData.trans_id,
                           type: finalData.type,
                           to: finalData.target_id,
                           amount: finalData.amount,
