@@ -206,6 +206,7 @@ module.exports = {
                 info: data.info,
                 type: data.type,
                 status: 'Success',
+                creditLeft: resDetailUser[0].credit + data.amount
               }
               dataUpdateUser = {
                 id: data.user_id,
@@ -249,6 +250,7 @@ module.exports = {
                   info: data.info,
                   type: data.type,
                   status: 'Pending',
+                  creditLeft: Number(resDetailUser[0].credit) - Number(data.amount)
                 }
                 dataUpdateUser = {
                   id: data.user_id,
@@ -271,7 +273,7 @@ module.exports = {
                           amount: finalData.amount,
                           currentCredit: resDetailUser[0].credit - finalData.amount,
                           status: finalData.status,
-                          info: finalData.info
+                          info: finalData.info,
                         }
                         success(res, data, {}, 'Transfer Success, Please Wait for Confirmation')
                       })
