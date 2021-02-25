@@ -218,7 +218,7 @@ module.exports = {
                   // Tambahkan ke tabel transaksi
                   await mAddTrans(finalData)
                     .then(() => {
-                      const data = {
+                      const dataAkhir = {
                         id: finalData.trans_id,
                         type: finalData.type,
                         info: finalData.info,
@@ -227,7 +227,7 @@ module.exports = {
                         status: finalData.status
                       }
                       // Kalau Transaksi Sukses
-                      success(res, data, {}, 'Top Up Success')
+                      success(res, dataAkhir, {}, 'Top Up Success')
                     })
                     // Kalau Gagal Transaksi menambahkan
                     .catch((err) => {
