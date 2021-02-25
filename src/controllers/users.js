@@ -93,34 +93,36 @@ module.exports = {
             const detail = await modelDetail(id)
             if (req.file) {
                 const data = { ...body, image: req.file.filename, updated_at: currDate };
-                if (detail[0].image === 'default_photo.png') {
-                    modelUpdate(data, id)
-                        .then((response) => {
-                            success(res, response, {}, 'Update User success')
-                        }).catch((err) => {
-                            failed(res, 'Update User Failed!', err.message)
-                        })
-                } else {
-                    const path = `./public/images/${detail[0].image}`
-                    fs.unlinkSync(path)
-                    modelUpdate(data, id)
-                        .then((response) => {
-                            success(res, response, {}, 'Update User success')
-                        }).catch(() => {
-                            failed(res, 'Update user Usr Failed', err.message)
-                        })
-                }
+                    if (detail[0].image === 'default_photo.png') {
+                        modelUpdate(data, id)
+                            .then((response) => {
+                                success(res, response, {}, 'Update User success')
+                            }).catch((err) => {
+                                failed(res, 'Update User Failed!', err.message)
+                            })
+                    } else {
+                        const path = `./public/images/${detail[0].image}`
+                        fs.unlinkSync(path)
+                        modelUpdate(data, id)
+                            .then((response) => {
+                                success(res, response, {}, 'Update User success')
+                            }).catch(() => {
+                                failed(res, 'Update user Usr Failed', err.message)
+                            })
+                    }
             } else {
                 const data = { ...body, updated_at: currDate };
-                modelUpdate(data, id)
+                    modelUpdate(data, id)
                     .then((response) => {
                         success(res, response, {}, 'Update User success')
                     }).catch((err) => {
                         failed(res, 'Server error', err.message)
+                        console.log(err)
                     })
             }
         } catch (error) {
             failed(res, 'Error server', error.message)
+            console.log(err)
         }
     },
     // //get Detail Users
@@ -138,6 +140,25 @@ module.exports = {
             })
         } catch (error) {
             failed(res, 'Internal server error', error.message)
+        }
+    },
+    changPassword: async(req, res) => {
+        const id = req.params.id
+        const detail = await modelDetail(id)
+        const checkPassword = await bcrypt.compare(req.body.password, detail[0].password);
+        const salt = await bcrypt.genSalt();
+        const password = await bcrypt.hash(req.body.newPassword, salt);
+        const data = {password}
+        if (checkPassword) {
+            modelUpdate(data, id)
+            .then((response) => {
+                success(res, response, {}, 'Succesfully Change Password')
+            }).catch((err) => {
+                failed(res, 'Server error', err.message)
+                console.log(err)
+            })
+        } else {
+            failed(res, 'Wrong Old Password', {})
         }
     },
     searchUser: async(req, res) => {
