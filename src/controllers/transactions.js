@@ -34,7 +34,7 @@ module.exports = {
       const user = req.query.id ? Number(req.query.id) : '%'
       const status = req.query.status ? req.query.status : '%'
       const order = req.query.order ? req.query.order : 'created_at'
-      const totalTrans = await mTotalTrans(user)
+      const totalTrans = await mTotalTrans(user, range, status)
       const totalIncome = await mTotalIn(user)
       const totalExpense = await mTotalOut(user)
       mAllTrans(user, offset, limit, sort, range, status, order)
@@ -47,13 +47,13 @@ module.exports = {
             // range data yang sedang ditampilkan
             range,
             // Banyaknya Invoices yang terdaftar
-            totalData: totalTrans[0].qty,
+            totalData: totalTrans[0].total,
             // Banyaknya Pemasukan
             totalIncome: totalIncome[0].totalIncome,
             // Banyaknya Pengeluaran
             totalExpense: totalExpense[0].totalExpense,
             // TotalPages
-            totalPages: Math.ceil(totalTrans[0].qty / limit)
+            totalPages: Math.ceil(totalTrans[0].total / limit)
           }
           if (dataTrans.length > 0) {
             // res, data, pagination, message

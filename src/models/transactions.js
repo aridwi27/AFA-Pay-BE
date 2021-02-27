@@ -56,9 +56,9 @@ module.exports = {
         })
     })
   },
-  mTotalTrans: (user) => {
+  mTotalTrans: (user, range, status) => {
     return new Promise((resolve, reject) => {
-      const sql = `SELECT  COUNT(transactions.id) as qty FROM transactions WHERE (transactions.user_id LIKE '%${user}%') OR (transactions.target_id LIKE '%${user}%')`
+      const sql = `SELECT COUNT(trans_id) as total FROM transactions WHERE status LIKE '%${status}%' AND ((type='in' AND target_id LIKE '%${user}%') OR (type='out' AND target_id LIKE '%${user}%')) AND created_at BETWEEN date_sub(now(),INTERVAL 1 ${range}) and now()`
         connection.query(sql, (err, result) => {
             if (err) {
                 reject(new Error(err));
