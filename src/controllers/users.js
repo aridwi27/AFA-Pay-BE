@@ -174,11 +174,13 @@ module.exports = {
             }
             const data = response.map((el)=>{
                 return {
+                    id: el.id,
                     username : el.username,
                     first_name : el.first_name,
                     last_name : el.last_name,
                     image : el.image,
-                    email: el.email
+                    email: el.email,
+                    handphone: el.handphone
                 }
             })
             const pagination = {
