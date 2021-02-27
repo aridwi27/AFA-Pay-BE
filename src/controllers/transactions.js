@@ -28,15 +28,16 @@ module.exports = {
     try {
       const limit = req.query.limit ? req.query.limit : '5'
       const sort = req.query.sort ? req.query.sort : 'desc'
-      const range = req.query.range ? toUpper(req.query.range) : 'YEAR'
+      const range = req.query.range ? (req.query.range).toUpperCase() : 'YEAR'
       const page = req.query.page ? req.query.page : '1'
       const offset = page === 1 ? 0 : (page - 1) * limit
       const user = req.query.id ? Number(req.query.id) : '%'
       const status = req.query.status ? req.query.status : '%'
+      const order = req.query.order ? req.query.order : 'created_at'
       const totalTrans = await mTotalTrans(user)
       const totalIncome = await mTotalIn(user)
       const totalExpense = await mTotalOut(user)
-      mAllTrans(user, offset, limit, sort, range, status)
+      mAllTrans(user, offset, limit, sort, range, status, order)
         .then((dataTrans) => {
           const paginationTrans = {
             // Halaman yang sedang diakses
@@ -206,12 +207,12 @@ module.exports = {
                 info: data.info,
                 type: data.type,
                 status: 'Success',
-                creditLeft: resDetailUser[0].credit + data.amount
+                creditLeft: Number(Number(resDetailUser[0].credit) + Number(data.amount))
               }
               dataUpdateUser = {
                 id: data.user_id,
                 // Kalau misalkan mau langsung Tambah saldo
-                credit: Number(resDetailUser[0].credit) + Number(data.amount),
+                credit: Number(Number(resDetailUser[0].credit) + Number(data.amount)),
                 // credit: Number(resDetailUser[0].credit)
               }
               await mUpdateSaldo(dataUpdateUser)
@@ -250,12 +251,12 @@ module.exports = {
                   info: data.info,
                   type: data.type,
                   status: 'Pending',
-                  creditLeft: Number(resDetailUser[0].credit) - Number(data.amount)
+                  creditLeft: Number(Number(resDetailUser[0].credit) - Number(data.amount))
                 }
                 dataUpdateUser = {
                   id: data.user_id,
                   // Kalau misalkan mau langsung Tambah saldo
-                  credit: Number(resDetailUser[0].credit) - Number(data.amount),
+                  credit: Number(Number(resDetailUser[0].credit) - Number(data.amount)),
                   // credit: Number(resDetailUser[0].credit)
                 }
                 await mUpdateSaldo(dataUpdateUser)
