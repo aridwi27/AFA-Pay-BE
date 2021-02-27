@@ -1,6 +1,6 @@
 # Payment Web - BACKEND
 
-Payment Web is an aplication that aims to make it easy for user to do online payment. In backend part, Payment Web provide API to integrate it to [frontend Payment Web aplication](https://github.com/aridwi27/AFA-Pay-FE). API provide include User API and Transaction API. We use MySQL as Database with two table in it. 
+Payment Web is an aplication that aims to make it easy for user to do online payment. In backend part, Payment Web provide API to integrate it to [frontend Payment Web aplication](https://github.com/aridwi27/AFA-Pay-FE). API provide include Users and Transaction. We use MySQL as Database with two table in it. 
 
 ## Getting Started
 
@@ -19,7 +19,7 @@ We use all this main following dependencies:
 
 ### Database
 We provide database with two tables:
-1. User
+1. Users
 2. Transactions
 
 ![Database Scheme](https://i.ibb.co/FDCQSt4/database-scheme.png)
@@ -34,7 +34,7 @@ Here is few step to run the server of Payment Web:
 ```
 git clone https://github.com/aridwi27/AFA-Pay-BE.git
 ``` 
-4. Use this command to install all repository
+4. Use this command to install all dependencies
 ```
 npm install
 ```
