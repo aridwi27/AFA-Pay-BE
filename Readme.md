@@ -4,7 +4,6 @@ Payment Web is an aplication that aims to make it easy for user to do online pay
 
 ## Getting Started
 
-This Instruction will guide you to run this aplication
 
 ### Dependencies
 
