@@ -37,6 +37,14 @@ git clone https://github.com/aridwi27/AFA-Pay-BE.git
 ```
 npm install
 ```
+5. Set up .env File
+    - `PORT`        : fill for set the API running port
+    - `db_host`     : fill with HOSTNAME in your  database configuration
+    - `db_user`     : fill with USERNAME in your database configuration
+    - `db_password` : fill with PASSWORD in your database configuration (Or leave it null if your database doesn't have password)
+    - `db_name`     : fill with the NAME OF DATABASE (Or leave it filled with `payment.sql` if you didn't rename the database)
+    - `JWT_SECRET`   : fill with the unique value due to signature verifier on JWT
+
 5. You can install nodemon for easier development (optional)
  * local
 ```
