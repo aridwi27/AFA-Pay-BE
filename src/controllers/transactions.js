@@ -9,10 +9,6 @@ const {
   mPatchTrans
 } = require('../models/transactions')
 const {
-  mDetailPending,
-  mDeletePending
-} = require('../models/pending')
-const {
   mUpdateSaldo,
   modelDetail
 } = require('../models/users')
